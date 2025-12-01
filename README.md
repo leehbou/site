@@ -1,149 +1,182 @@
-# 🧗 Club d'Escalade - Application Web
+# Client Salle d'Escalade
 
-Application web de gestion pour un club d'escalade permettant la réservation de cours et de matériel.
+Client Python pour le système de gestion d'une salle d'escalade. Ce programme permet de simuler différents types de bornes interactives utilisées dans une salle d'escalade.
 
-## 📋 Description
+## Description
 
-Cette application PHP permet aux adhérents d'un club d'escalade de :
-- Réserver des cours d'escalade (débutant, intermédiaire, avancé)
-- Emprunter du matériel
-- Consulter leurs réservations
-- Gérer leur profil
+Ce client se connecte à un serveur de gestion de salle d'escalade et simule différents types de bornes :
+- **Borne d'accueil** : Contrôle d'accès à la salle
+- **Borne de réservation de cours** : Réservation de cours individuels
+- **Borne de location de matériel** : Location d'équipement d'escalade
+- **Borne sauna** : Contrôle d'accès au sauna
+- **Borne cours collectifs** : Contrôle d'accès aux cours collectifs
+- 
+## Installation
+
+Aucune installation nécessaire. Téléchargez simplement le fichier Python.
+
+## Utilisation
+
+### Démarrage basique
+
+```bash
+python client.py
+```
+
+Le client se connectera par défaut à `127.0.0.1:8080`.
+
+### Démarrage avec paramètres personnalisés
+
+```bash
+python client.py <adresse_ip> <port>
+```
+
+**Exemple :**
+```bash
+python client.py 192.168.1.100 8080
+```
+
+### Configuration initiale
+
+Au démarrage, le programme vous demandera :
+
+1. **ID du client** (1-100) : Identifiant unique de la borne
+2. **Type de borne** : Choisir parmi les 5 types disponibles
+
+## Types de bornes
+
+### 1. Borne d'accueil
+- Scanne les cartes d'adhérent
+- Vérifie l'accès à la salle d'escalade
+
+### 2. Borne de réservation de cours
+- Scanne la carte de l'adhérent
+- Affiche la liste des cours disponibles
+- Permet de réserver un cours
+
+### 3. Borne de location de matériel
+- Scanne la carte de l'adhérent
+- Affiche le matériel disponible
+- Permet de louer du matériel
+
+### 4. Borne sauna
+- Scanne les cartes d'adhérent
+- Vérifie l'accès au sauna
+
+### 5. Borne cours collectifs
+- Scanne les cartes d'adhérent
+- Vérifie l'accès aux cours collectifs
+
+## Format des cartes
+
+Les cartes d'adhérent doivent respecter le format suivant :
+- **8 caractères exactement**
+- **Uniquement des chiffres**
+
+## Protocole de communication
+
+Le client utilise un protocole binaire personnalisé avec la structure suivante :
+
+### Structure du message (7 octets d'en-tête + contenu)
+
+| Champ | Taille | Type | Description |
+|-------|--------|------|-------------|
+| idClient | 1 octet | uint8 | ID de la borne (1-100) |
+| typeClient | 1 octet | uint8 | Type de borne (1-5) |
+| typeDemande | 1 octet | uint8 | Type de requête |
+| lengthContent | 4 octets | uint32 | Taille du contenu |
+| content | Variable | UTF-8 | Données de la requête |
+
+### Types de demandes
+
+| Code | Nom | Description |
+|------|-----|-------------|
+| 0 | DISCONNECT | Déconnexion |
+| 11 | CHECK_ACCES_SALLE | Vérification accès salle |
+| 15 | CHECK_ACCES_SAUNA | Vérification accès sauna |
+| 20 | LOCATION_SCAN | Scan pour location |
+| 21 | LOCATION_LIST | Liste matériel disponible |
+| 22 | LOCATION_CHOIX | Choix de matériel |
+| 25 | RESERVATION_SCAN | Scan pour réservation |
+| 26 | RESERVATION_LIST | Liste cours disponibles |
+| 27 | RESERVATION_CHOIX | Choix de cours |
+| 30 | CHECK_ACCES_COURS | Vérification accès cours |
+
+## Réponses du serveur
+
+Le serveur peut renvoyer différents types de réponses :
+
+- `ACCES:` - Accès autorisé
+- `REFUSE:` - Accès refusé
+- `OK:` - Opération réussie
+- `ERROR:` - Erreur
+- `DISCONNECT:` - Déconnexion forcée
+
+## Limites techniques
+
+- **Taille du buffer** : 1024 octets
+- **Taille de l'en-tête** : 7 octets
+- **Taille maximale du contenu** : 1016 octets
+- **Plage d'ID client** : 1-100
+- **Plage de ports** : 1024-65535
+
+## Gestion des erreurs
+
+Le client gère automatiquement :
+- Validation de l'adresse IP
+- Validation du port
+- Validation du format des cartes
+- Erreurs de connexion
+- Interruptions clavier (Ctrl+C)
+- Déconnexions du serveur
+
+## Exemple de session
+
+```
+========================================
+  CLIENT SALLE D'ESCALADE
+========================================
+
+Serveur: 127.0.0.1:8080
+ID du client (1-100) > 5
+
+Type de borne :
+  1 : Borne d'accueil
+  2 : Borne reservation cours
+  3 : Borne location materiel
+  4 : Borne sauna
+  5 : Borne cours collectifs
+> 1
+
+[OK] Borne: Accueil (ID=5)
+
+Connexion a 127.0.0.1:8080...
+[OK] Connecte !
+
+========================================
+     BORNE ACCUEIL
+========================================
+  1 - Scanner carte
+  0 - Quitter
+
+> 1
+
+[SCAN] ID carte (8 chiffres) > 12345678
+
+[OK] Acces autorise : Bienvenue Jean !
+```
+
+## Code de sortie
+
+- `0` : Sortie normale
+- `1` : Erreur (paramètres invalides, connexion refusée, etc.)
 
 ## Auteur
 
-- Nathan Ripaud
-- Adam Leopole dit marie
-- Iulian Esanu
+Nathan Ripaud
+Adam Leopole dit marie
+Iulian Esanu
 
-Les employés (professeurs) peuvent également créer des cours.
+## Licence
 
-## 🚀 Fonctionnalités
-
-### Pour les Adhérents
-- ✅ **Inscription** avec différentes formules d'abonnement
-- 🔐 **Connexion** sécurisée avec mot de passe hashé
-- 📚 **Réservation de cours** (3 niveaux disponibles)
-- 🎒 **Réservation de matériel** par salle
-- 👤 **Profil personnel** avec informations détaillées
-- 📋 **Historique des réservations** (cours et matériel)
-
-### Pour les Employés (Professeurs)
-- ➕ **Création de cours** avec date et niveau
-- 🏢 Affectation automatique à leur salle de travail
-
-### Niveaux de cours
-- 🟢 **Débutant** : Techniques de base, sécurité
-- 🟡 **Intermédiaire** : Perfectionnement, voies en moulinette
-- 🔴 **Avancé** : Escalade en tête, techniques avancées
-
-
-## 📁 Structure du projet
-
-```
-├── acc.php                 # Page d'accueil
-├── index.php              # Page de connexion
-├── inscription.php        # Formulaire d'inscription
-├── profil.php             # Profil utilisateur
-├── reservCours.php        # Réservation de cours
-├── reservMateriel.php     # Réservation de matériel
-├── mesReservation.php     # Historique des réservations
-├── creerCours.php         # Création de cours (profs)
-├── deconnecter.php        # Déconnexion
-├── reussite.php           # Page de confirmation
-├── styleClair.css         # Styles CSS
-└── include/
-    ├── bd.inc.php         # Connexion base de données
-    ├── functions.inc.php  # Fonctions métier
-    ├── header.inc.php     # En-tête commun
-    └── footer.inc.php     # Pied de page
-```
-
-## 🔑 Système d'authentification
-
-### Inscription
-- Création automatique d'un ID unique
-- Âge minimum : 16 ans
-- Validation de l'email et du téléphone (uniques)
-- Mot de passe hashé avec `password_hash()`
-
-### Clés employés (inscription avec rôle)
-- `ePv5` : Professeur voie
-- `ePt3` : Professeur tête
-- `ePb1` : Professeur bloc
-- `eO7` : Ouvreur
-- `eA9` : Accueil
-
-## 💳 Types d'abonnements
-
-- **Forfait Normal**
-- **Forfait+** 
-- Options : Accès sauna, Cours collectifs
-- Durée : 1 à 12 mois
-
-## 📱 Pages principales
-
-| Page 			| Description 
-|-----------------------|-------------
-| `index.php` 		| Connexion 
-| `acc.php` 		| Accueil avec actions rapides 
-| `reservCours.php` 	| Réserver un cours 
-| `reservMateriel.php`  | Emprunter du matériel 
-| `mesReservation.php`  | Voir ses réservations 
-| `profil.php` 		| Informations personnelles 
-
-## 🔒 Sécurité
-
-- ✅ Sessions PHP pour l'authentification
-- ✅ Mots de passe hashés (bcrypt)
-- ✅ Requêtes préparées (PDO) contre les injections SQL
-- ✅ Validation des entrées utilisateur
-- ✅ Échappement HTML avec `htmlspecialchars()`
-- ✅ Redirection automatique si non connecté
-
-## 🐛 Gestion des erreurs
-
-L'application affiche des messages clairs :
-- Messages de succès (fond vert)
-- Messages d'erreur (fond rouge)
-- Validation des formulaires
-- Vérification de disponibilité (cours, matériel)
-
-## 📊 Fonctions principales
-
-### `functions.inc.php`
-
-```php
-// Authentification
-existAdherent($id)          // Vérifie l'existence d'un adhérent
-bonMDP($id, $mdp)           // Valide le mot de passe
-
-// Gestion des cours
-creerCours($idprof, $date, $niveau, $nomCours)
-rejoindreCours($idadherent, $idcours)
-afficherCours($idDuCours)
-
-// Gestion du matériel
-reservMateriel($idadherent, $idmateriel, $datedebut, $dateretour)
-descriptionMateriel($idSalle, $idMateriel)
-
-// Inscription
-ajoutAdherent($id, $nom, $prenom, ...)
-ajoutEmploye($id, $nom, $prenom, ..., $cle, $salle)
-```
-## 🧪 Tests
-
-Pour tester l'application :
-
-1. **Créer un compte adhérent**
-   - Aller sur inscription.php
-   - Remplir le formulaire
-   - Noter l'ID généré
-
-2. **Créer un compte professeur**
-   - Utiliser une clé employé (ex: ePv5)
-   - Choisir une salle
-
-3. **Tester les réservations**
-   - Cours : sélectionner un cours existant
-   - Matériel : choisir salle puis équipement
+Non spécifiée
